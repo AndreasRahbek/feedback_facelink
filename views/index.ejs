@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Tidslinje</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+<div class="max-w-2xl mx-auto py-8 px-4">
+    <!-- Tidslinje container -->
+    <!-- For loop der viser alle posts-->
+    <div class="space-y-6">
+        <% posts.forEach(post => { %>
+        <div class="bg-white p-4 rounded-lg shadow-md">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-10 h-10 bg-blue-500 rounded-full"></div>
+                    <p class="font-semibold"><%= post.userId.username %></p>
+                </div>
+                <span class="text-sm text-gray-500"><%= post.timestamp.toLocaleString() %></span>
+            </div>
+            <p class="text-gray-800 mb-4">
+                <%= post.text %>
+            </p>
+            <div class="flex justify-between text-gray-600">
+                <button class="flex items-center space-x-1 hover:text-blue-500 like-button" data-post-id="<%= post._id %>">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 9l-3 3m0 0l-3-3m3 3V4"></path>
+                    </svg>
+                    <span class="like-count"><%= post.likes %></span>
+                </button>
+
+                <button class="flex items-center space-x-1 hover:text-red-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6.75v6.75H8.25a.75.75 0 0 0 0 1.5h2.25v6.75a.75.75 0 0 0 1.5 0V15h2.25a.75.75 0 0 0 0-1.5H11.75V6.75a.75.75 0 0 0-1.5 0z"></path>
+                    </svg>
+                    <span>Dislike (<%= post.dislikes %>)</span>
+                </button>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+</div>
+</body>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const likeButtons = document.querySelectorAll('.like-button');
+
+        likeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const postId = this.getAttribute('data-post-id');
+                const likeCountElement = this.querySelector('.like-count');
+                let likeCount = parseInt(likeCountElement.textContent);
+
+                likeCount++;
+                likeCountElement.textContent = likeCount;
+
+
+                fetch(`/posts/${postId}/like`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ likes: likeCount })
+                })
+                    .then(response => response.json())
+                    .catch(error => {
+                        console.error('Error liking post:', error);
+                    });
+            });
+        });
+    });
+</script>
+
+</html>
