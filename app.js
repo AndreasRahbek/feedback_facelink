@@ -5,6 +5,8 @@ const postRoutes = require('./Routes/postRoutes')
 const path = require('path');
 const Post = require('./models/post');
 const errorHandler = require('./middleware/errorHandling');
+const logger = require('./middleware/logger');
+const rateLimiter = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -18,6 +20,8 @@ app.set('views', path.join(__dirname, 'views'));
 
 app.use(express.json());
 app.use(express.static('public'));
+app.use(logger)
+app.use(rateLimiter)
 app.use(errorHandler)
 
 
